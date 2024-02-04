@@ -45,7 +45,7 @@ jobs:
           cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
             --rm \
             --name ${{ env.CONTAINER_NAME }} \
-            --volume livetests/allure-results:/usr/src/app/allure-results \
+            --volume './livetests/allure-results:/usr/src/app/allure-results' \
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short
       - name: Push image
