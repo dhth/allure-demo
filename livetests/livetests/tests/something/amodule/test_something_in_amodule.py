@@ -25,3 +25,9 @@ class TestSomething:
     )
     def test_something_parameterized(self, some_val):
         assert 1 == 1
+
+    @allure.title("A new test")
+    @allure.description("This test tests something new")
+    @allure.tag("feature-3")
+    def test_something_new(self, a_fake_fixture, another_fake_fixture):
+        assert a_fake_fixture in another_fake_fixture
