@@ -1,0 +1,45 @@
+name: Live Tests
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+env:
+  IMAGE: docker.pkg.github.com/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')/live-tests
+  CONTAINER_NAME: live-tests
+  DOCKER_FILE: ./livetests/Dockerfile
+  DOCKER_BUILD_DIR: ./livetests
+
+jobs:
+  live-tests:
+    name: Run Live Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout commit
+        uses: actions/checkout@v3.6.0
+      - name: Log in to GitHub Packages
+        run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull image
+        run: |
+          docker pull ${{ env.IMAGE }} || true
+      - name: Build image
+        run: |
+          docker build \
+            --cache-from ${{ env.IMAGE }} \
+            --tag ${{ env.IMAGE }} \
+            --file ${{ env.DOCKER_FILE }} \
+            "${{ env.DOCKER_BUILD_DIR }}"
+      - name: Run live tests
+        run: |
+          docker run \
+            --rm \
+            --name ${{ env.CONTAINER_NAME }} \
+            ${{ env.IMAGE }} \
+            python -m pytest -v -s --tb=short
+      - name: Push image
+        run: |
+          docker push ${{ env.IMAGE }}
