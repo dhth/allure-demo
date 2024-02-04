@@ -51,9 +51,15 @@ jobs:
             --volume './livetests/allure-results:/usr/src/app/allure-results' \
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short
+      - name: Copy allure-results
+        run: |
+          cp -r livetests/livetests/allure-results allure-results
+      - name: pwd
+        run: |
+          pwd
       - name: Debug
         run: |
-          ls -la livetests/livetests/allure-results
+          ls -la allure-results
       - name: Push image
         run: |
           docker push ${{ env.IMAGE }}
