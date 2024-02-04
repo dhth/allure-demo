@@ -53,7 +53,7 @@ jobs:
             python -m pytest -v -s --tb=short
       - name: Debug
         run: |
-          ls -la livetests/allure-results
+          ls -la livetests/livetests/allure-results
       - name: Push image
         run: |
           docker push ${{ env.IMAGE }}
@@ -61,7 +61,7 @@ jobs:
         uses: simple-elf/allure-report-action@v1.7
         if: always()
         with:
-          allure_results: livetests/allure-results
+          allure_results: livetests/livetests/allure-results
       - name: Deploy report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v2
