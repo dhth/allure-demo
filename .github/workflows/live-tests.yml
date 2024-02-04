@@ -23,6 +23,13 @@ jobs:
         run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get Allure history
+        uses: actions/checkout@v3
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
       - name: Pull image
         run: |
           docker pull ${{ env.IMAGE }} || true
@@ -35,11 +42,18 @@ jobs:
             "${{ env.DOCKER_BUILD_DIR }}"
       - name: Run live tests
         run: |
-          docker run \
+          cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
             --rm \
             --name ${{ env.CONTAINER_NAME }} \
+            --volume livetests/allure-results:/usr/src/app/allure-results \
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short
       - name: Push image
         run: |
           docker push ${{ env.IMAGE }}
+      - name: Allure Report action from marketplace
+        uses: simple-elf/allure-report-action@v1.7
+        if: always()
+        with:
+          allure_results: livetests/allure-results
+          allure_history: livetests/allure-history
