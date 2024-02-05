@@ -53,7 +53,7 @@ jobs:
       - name: debug
         if: always()
         run: |
-          ls -la
+          ls -la gh-pages/qa
       - name: Run live tests on qa
         run: |
           cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
@@ -76,11 +76,15 @@ jobs:
       - name: debug
         if: always()
         run: |
-          ls -la gh-pages
+          ls -la gh-pages/qa
       - name: mkdir allure-results-staging
         if: always()
         run: |
           mkdir livetests/livetests/allure-results-staging
+      - name: debug
+        if: always()
+        run: |
+          ls -la gh-pages/staging
       - name: Run live tests on staging
         if: always()
         run: |
@@ -100,7 +104,7 @@ jobs:
       - name: debug
         if: always()
         run: |
-          ls -la gh-pages
+          ls -la gh-pages/staging
       - name: mkdir allure-results-prod
         if: always()
         run: |
