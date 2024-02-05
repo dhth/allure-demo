@@ -55,24 +55,23 @@ jobs:
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short --alluredir allure-results
       - name: Copy allure-results
+        if: always()
         run: |
           cp -r livetests/livetests/allure-results qa/allure-results
       - name: pwd
+        if: always()
         run: |
           pwd
       - name: Debug
+        if: always()
         run: |
           ls -la allure-results
-      - name: Push image
-        run: |
-          docker push ${{ env.IMAGE }}
       - name: Allure Report action from marketplace
         uses: simple-elf/allure-report-action@v1.7
         if: always()
         with:
           allure_results: qa/allure-results
-          allure_report: qa/allure-report
-          allure_history: qa/allure-history
+          subfolder: qa
       - name: Deploy report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v2
@@ -88,3 +87,6 @@ jobs:
             -e ENV="prod" \
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short
+      - name: Push image
+        run: |
+          docker push ${{ env.IMAGE }}
