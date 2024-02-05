@@ -7,6 +7,9 @@ on:
     branches:
       - main
   workflow_dispatch:
+permissions:
+  contents: write
+  packages: write
 
 env:
   IMAGE: docker.pkg.github.com/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')/live-tests
