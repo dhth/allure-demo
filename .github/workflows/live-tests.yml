@@ -65,7 +65,6 @@ jobs:
         with:
           allure_results: livetests/livetests/allure-results-qa
           subfolder: qa
-          gh_pages: gh-pages/qa
       - name: mkdir allure-results-staging
         if: always()
         run: |
@@ -86,7 +85,6 @@ jobs:
         with:
           allure_results: livetests/livetests/allure-results-staging
           subfolder: staging
-          gh_pages: gh-pages/staging
       - name: mkdir allure-results-prod
         if: always()
         run: |
@@ -107,7 +105,6 @@ jobs:
         with:
           allure_results: livetests/livetests/allure-results-prod
           subfolder: prod
-          gh_pages: gh-pages/prod
       - name: Deploy report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v2
