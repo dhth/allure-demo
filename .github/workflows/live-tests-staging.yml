@@ -1,0 +1,74 @@
+name: Live Tests staging
+
+on:
+  schedule:
+    - cron: "15 7 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  packages: write
+
+env:
+  IMAGE: docker.pkg.github.com/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')/live-tests
+  CONTAINER_NAME: live-tests
+  DOCKER_FILE: ./livetests/Dockerfile
+  DOCKER_BUILD_DIR: ./livetests
+
+jobs:
+  live-tests:
+    name: Run Live Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout commit
+        uses: actions/checkout@v3.6.0
+      - name: Log in to GitHub Packages
+        run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get Allure history
+        uses: actions/checkout@v3
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - name: Pull image
+        run: |
+          docker pull ${{ env.IMAGE }} || true
+      - name: Build image
+        run: |
+          docker build \
+            --cache-from ${{ env.IMAGE }} \
+            --tag ${{ env.IMAGE }} \
+            --file ${{ env.DOCKER_FILE }} \
+            "${{ env.DOCKER_BUILD_DIR }}"
+      - name: mkdir allure-results-staging
+        if: always()
+        run: |
+          mkdir livetests/livetests/allure-results
+      - name: Run live tests on staging
+        run: |
+          cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
+            --rm \
+            --name ${{ env.CONTAINER_NAME }} \
+            --volume './livetests/allure-results:/usr/src/app/allure-results' \
+            -e ENV="staging" \
+            ${{ env.IMAGE }} \
+            python -m pytest -v -s --tb=short --alluredir allure-results
+      - name: Allure Report action from marketplace
+        uses: simple-elf/allure-report-action@v1.7
+        if: always()
+        with:
+          allure_results: livetests/livetests/allure-results
+          subfolder: staging
+      - name: Deploy report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v2
+        env:
+          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: allure-history
+      - name: Push image
+        run: |
+          docker push ${{ env.IMAGE }}
