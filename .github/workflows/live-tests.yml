@@ -65,13 +65,14 @@ jobs:
       - name: Debug
         if: always()
         run: |
-          ls -la allure-results
+          ls -la qa/allure-results
       - name: Allure Report action from marketplace
         uses: simple-elf/allure-report-action@v1.7
         if: always()
         with:
           allure_results: qa/allure-results
           subfolder: qa
+          gh_pages: gh-pages/qa
       - name: Deploy report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v2
