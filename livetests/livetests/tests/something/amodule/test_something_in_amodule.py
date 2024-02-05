@@ -31,3 +31,9 @@ class TestSomething:
     @allure.tag("feature-3")
     def test_something_new(self, a_fake_fixture, another_fake_fixture):
         assert a_fake_fixture in another_fake_fixture
+
+    @allure.title("Test something only on qa")
+    @allure.description("This test tests something only on qa")
+    @allure.tag("feature-3")
+    def test_something_only_on_qa(self, skip_for_prod):
+        assert 2 == 2

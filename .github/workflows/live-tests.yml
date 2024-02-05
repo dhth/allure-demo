@@ -7,6 +7,8 @@ on:
     branches:
       - main
   workflow_dispatch:
+permissions:
+  contents: write
 
 env:
   IMAGE: docker.pkg.github.com/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')/live-tests
@@ -43,17 +45,18 @@ jobs:
             --tag ${{ env.IMAGE }} \
             --file ${{ env.DOCKER_FILE }} \
             "${{ env.DOCKER_BUILD_DIR }}"
-      - name: Run live tests
+      - name: Run live tests on qa
         run: |
           cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
             --rm \
             --name ${{ env.CONTAINER_NAME }} \
             --volume './livetests/allure-results:/usr/src/app/allure-results' \
+            -e ENV="qa" \
             ${{ env.IMAGE }} \
-            python -m pytest -v -s --tb=short
+            python -m pytest -v -s --tb=short --alluredir allure-results
       - name: Copy allure-results
         run: |
-          cp -r livetests/livetests/allure-results allure-results
+          cp -r livetests/livetests/allure-results qa/allure-results
       - name: pwd
         run: |
           pwd
@@ -67,7 +70,9 @@ jobs:
         uses: simple-elf/allure-report-action@v1.7
         if: always()
         with:
-          allure_results: livetests/livetests/allure-results
+          allure_results: qa/allure-results
+          allure_report: qa/allure-report
+          allure_history: qa/allure-history
       - name: Deploy report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v2
@@ -75,3 +80,11 @@ jobs:
           PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUBLISH_BRANCH: gh-pages
           PUBLISH_DIR: allure-history
+      - name: Run live tests on prod
+        run: |
+          cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
+            --rm \
+            --name ${{ env.CONTAINER_NAME }} \
+            -e ENV="prod" \
+            ${{ env.IMAGE }} \
+            python -m pytest -v -s --tb=short

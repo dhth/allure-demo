@@ -1,3 +1,5 @@
+import os
+
 import allure
 import pytest
 
@@ -12,3 +14,9 @@ def a_fake_fixture():
 @pytest.fixture(scope="session")
 def another_fake_fixture():
     return "more fake"
+
+
+@pytest.fixture(scope="session")
+def skip_for_prod():
+    if os.environ.get("ENV", "qa") == "prod":
+        pytest.skip("Skipped for prod")
