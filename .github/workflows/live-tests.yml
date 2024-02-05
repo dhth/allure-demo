@@ -1,4 +1,4 @@
-name: Live Tests
+name: Live Tests QA
 
 on:
   schedule:
@@ -49,17 +49,13 @@ jobs:
       - name: mkdir allure-results-qa
         if: always()
         run: |
-          mkdir livetests/livetests/allure-results-qa
-      - name: debug
-        if: always()
-        run: |
-          ls -la gh-pages/qa
+          mkdir livetests/livetests/allure-results
       - name: Run live tests on qa
         run: |
           cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
             --rm \
             --name ${{ env.CONTAINER_NAME }} \
-            --volume './livetests/allure-results-qa:/usr/src/app/allure-results' \
+            --volume './livetests/allure-results:/usr/src/app/allure-results' \
             -e ENV="qa" \
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short --alluredir allure-results
@@ -67,70 +63,8 @@ jobs:
         uses: simple-elf/allure-report-action@v1.7
         if: always()
         with:
-          allure_results: livetests/livetests/allure-results-qa
-          allure_history: qa/allure-history
-          allure_report: qa/allure-report
+          allure_results: livetests/livetests/allure-results
           subfolder: qa
-      - name: debug
-        if: always()
-        run: |
-          ls -la
-      - name: debug
-        if: always()
-        run: |
-          ls -la gh-pages/qa
-      - name: mkdir allure-results-staging
-        if: always()
-        run: |
-          mkdir livetests/livetests/allure-results-staging
-      - name: debug
-        if: always()
-        run: |
-          ls -la gh-pages/staging
-      - name: Run live tests on staging
-        if: always()
-        run: |
-          cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
-            --rm \
-            --name ${{ env.CONTAINER_NAME }} \
-            --volume './livetests/allure-results-staging:/usr/src/app/allure-results' \
-            -e ENV="staging" \
-            ${{ env.IMAGE }} \
-            python -m pytest -v -s --tb=short --alluredir allure-results
-      - name: Allure Report action from marketplace
-        uses: simple-elf/allure-report-action@v1.7
-        if: always()
-        with:
-          allure_results: livetests/livetests/allure-results-staging
-          allure_history: staging/allure-history
-          allure_report: staging/allure-report
-          subfolder: staging
-      - name: debug
-        if: always()
-        run: |
-          ls -la gh-pages/staging
-      - name: mkdir allure-results-prod
-        if: always()
-        run: |
-          mkdir livetests/livetests/allure-results-prod
-      - name: Run live tests on prod
-        if: always()
-        run: |
-          cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
-            --rm \
-            --name ${{ env.CONTAINER_NAME }} \
-            --volume './livetests/allure-results-prod:/usr/src/app/allure-results' \
-            -e ENV="prod" \
-            ${{ env.IMAGE }} \
-            python -m pytest -v -s --tb=short --alluredir allure-results
-      - name: Allure Report action from marketplace
-        uses: simple-elf/allure-report-action@v1.7
-        if: always()
-        with:
-          allure_results: livetests/livetests/allure-results-prod
-          allure_history: prod/allure-history
-          allure_report: prod/allure-report
-          subfolder: prod
       - name: Deploy report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v2

@@ -1,4 +1,4 @@
 __pycache__/
 *.env
 local_only*
-livetests/livetests/allure-results/*.json
+allure-results
