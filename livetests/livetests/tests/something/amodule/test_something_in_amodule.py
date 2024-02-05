@@ -54,4 +54,4 @@ class TestSomething:
     @allure.description("This test tests a new feature")
     @allure.tag("feature-5")
     def test_a_new_feature(self):
-        assert 10 == 10
+        assert 11 == 11
