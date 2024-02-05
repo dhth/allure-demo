@@ -54,6 +54,10 @@ jobs:
             -e ENV="qa" \
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short --alluredir allure-results
+      - name: mkdir
+        if: always()
+        run: |
+          mkdir qa
       - name: Copy allure-results
         if: always()
         run: |
