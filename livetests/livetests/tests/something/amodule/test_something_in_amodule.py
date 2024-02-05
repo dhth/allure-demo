@@ -49,3 +49,9 @@ class TestSomething:
     @allure.tag("feature-4")
     def test_something_else_on_qa(self, qa_only):
         assert 6 == 6
+
+    @allure.title("Test a new feature")
+    @allure.description("This test tests a new feature")
+    @allure.tag("feature-5")
+    def test_a_new_feature(self):
+        assert 8 == 8
