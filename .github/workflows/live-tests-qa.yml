@@ -13,6 +13,7 @@ env:
   CONTAINER_NAME: live-tests
   DOCKER_FILE: ./livetests/Dockerfile
   DOCKER_BUILD_DIR: ./livetests
+  ALLURE_RESULTS_DIR: livetests/allure-results
 
 jobs:
   live-tests:
@@ -43,16 +44,16 @@ jobs:
             --tag ${{ env.IMAGE }} \
             --file ${{ env.DOCKER_FILE }} \
             "${{ env.DOCKER_BUILD_DIR }}"
-      - name: mkdir allure-results-qa
+      - name: mkdir allure-results
         if: always()
         run: |
-          mkdir livetests/livetests/allure-results
+          mkdir "${{ env.DOCKER_BUILD_DIR }}/${{ env.ALLURE_RESULTS_DIR }}"
       - name: Run live tests on qa
         run: |
           cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
             --rm \
             --name ${{ env.CONTAINER_NAME }} \
-            --volume './livetests/allure-results:/usr/src/app/allure-results' \
+            --volume "${{ env.ALLURE_RESULTS_DIR }}:/usr/src/app/allure-results" \
             -e ENV="qa" \
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short --alluredir allure-results
@@ -60,7 +61,7 @@ jobs:
         uses: simple-elf/allure-report-action@v1.7
         if: always()
         with:
-          allure_results: livetests/livetests/allure-results
+          allure_results: "${{ env.DOCKER_BUILD_DIR }}/${{ env.ALLURE_RESULTS_DIR }}"
           subfolder: qa
       - name: Deploy report to Github Pages
         if: always()
