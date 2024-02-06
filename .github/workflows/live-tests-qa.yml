@@ -53,7 +53,7 @@ jobs:
           cd ${{ env. DOCKER_BUILD_DIR }} && docker run \
             --rm \
             --name ${{ env.CONTAINER_NAME }} \
-            --volume "'""${{ env.ALLURE_RESULTS_DIR }}:/usr/src/app/allure-results""'" \
+            --volume "./${{ env.ALLURE_RESULTS_DIR }}:/usr/src/app/allure-results" \
             -e ENV="qa" \
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short --alluredir allure-results
