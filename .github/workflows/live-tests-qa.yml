@@ -14,6 +14,7 @@ env:
   DOCKER_FILE: ./livetests/Dockerfile
   DOCKER_BUILD_DIR: ./livetests
   ALLURE_RESULTS_DIR: livetests/allure-results
+  ENV: qa
 
 jobs:
   live-tests:
@@ -54,7 +55,7 @@ jobs:
             --rm \
             --name ${{ env.CONTAINER_NAME }} \
             --volume "./${{ env.ALLURE_RESULTS_DIR }}:/usr/src/app/allure-results" \
-            -e ENV="qa" \
+            -e ENV="${{ secrets.ENV }}"\
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short --alluredir allure-results
       - name: Allure Report action from marketplace
@@ -62,7 +63,7 @@ jobs:
         if: always()
         with:
           allure_results: "${{ env.DOCKER_BUILD_DIR }}/${{ env.ALLURE_RESULTS_DIR }}"
-          subfolder: qa
+          subfolder: ${{ secrets.ENV }}
       - name: Deploy report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v2
