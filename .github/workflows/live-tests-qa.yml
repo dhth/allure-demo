@@ -55,7 +55,7 @@ jobs:
             --rm \
             --name ${{ env.CONTAINER_NAME }} \
             --volume "./${{ env.ALLURE_RESULTS_DIR }}:/usr/src/app/allure-results" \
-            -e ENV="${{ secrets.ENV }}"\
+            -e ENV="${{ env.ENV }}"\
             ${{ env.IMAGE }} \
             python -m pytest -v -s --tb=short --alluredir allure-results
       - name: Allure Report action from marketplace
@@ -63,7 +63,7 @@ jobs:
         if: always()
         with:
           allure_results: "${{ env.DOCKER_BUILD_DIR }}/${{ env.ALLURE_RESULTS_DIR }}"
-          subfolder: ${{ secrets.ENV }}
+          subfolder: ${{ env.ENV }}
       - name: Deploy report to Github Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v2
